@@ -1,4 +1,5 @@
-import { buildBatchOperation, buildVariableDefinitions, buildMutationStatements, buildVariablesObject } from './index';
+import { buildMutationStatements, buildVariableDefinitions, buildVariablesObject } from './helpers';
+import { buildBatchOperation } from './index';
 
 describe('buildBatchOperation', () => {
   it('should build an empty mutation when no operations are provided', () => {
