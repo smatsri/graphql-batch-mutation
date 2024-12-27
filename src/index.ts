@@ -1,13 +1,16 @@
-interface OperationVariable {
-  type: string;
-  value: unknown;
-}
+type BaseVariableType = 'String' | 'Int' | 'Boolean' | 'Float' | 'ID';
+type OperationVariableType = BaseVariableType | `${BaseVariableType}!` | (string & {});
 
-interface BuilderOperation {
+type OperationVariable = {
+  type: OperationVariableType;
+  value: unknown;
+};
+
+type BuilderOperation = {
   graphql: string;
   variables: Record<string, OperationVariable>;
   alias?: string;
-}
+};
 
 export class BatchBuilder {
   private operations: BuilderOperation[] = [];
