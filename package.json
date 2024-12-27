@@ -5,6 +5,11 @@
   "main": "dist/index.js",
   "module": "dist/index.js",
   "types": "dist/index.d.ts",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/smatsri/graphql-batch-mutation.git"
+  },
+  "homepage": "https://github.com/smatsri/graphql-batch-mutation#readme",
   "keywords": [
     "graphql",
     "batch",
