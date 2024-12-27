@@ -12,7 +12,7 @@ type Operation = {
   alias?: string;
 };
 
-function buildVariableDefinitions(operations: Operation[]): string {
+export function buildVariableDefinitions(operations: Operation[]): string {
   return operations
     .map((op, index) =>
       Object.entries(op.variables)
@@ -22,7 +22,7 @@ function buildVariableDefinitions(operations: Operation[]): string {
     .join(', ');
 }
 
-function buildMutationStatements(operations: Operation[]): string[] {
+export function buildMutationStatements(operations: Operation[]): string[] {
   return operations.map((op, index) => {
     const alias = op.alias || `m${index + 1}`;
     const graphql = op.graphql.replace(
@@ -37,7 +37,7 @@ function buildMutationStatements(operations: Operation[]): string[] {
   });
 }
 
-function buildVariablesObject(operations: Operation[]): Record<string, unknown> {
+export function buildVariablesObject(operations: Operation[]): Record<string, unknown> {
   return operations.reduce((vars, op, index) => {
     Object.entries(op.variables).forEach(([key, variable]) => {
       vars[`${key}${index + 1}`] = variable.value;
