@@ -12,25 +12,18 @@ type Operation = {
   alias?: string;
 };
 
-export function buildBatchOperation(operations: Operation[]): {
-  gql: string;
-  variables: Record<string, unknown>;
-} {
-  if (operations.length === 0) {
-    return { gql: '', variables: {} };
-  }
-
-  // Build variable definitions
-  const varDefs = operations
+function buildVariableDefinitions(operations: Operation[]): string {
+  return operations
     .map((op, index) =>
       Object.entries(op.variables)
         .map(([key, variable]) => `$${key}${index + 1}: ${variable.type}`)
     )
     .flat()
     .join(', ');
+}
 
-  // Build mutations
-  const mutations = operations.map((op, index) => {
+function buildMutationStatements(operations: Operation[]): string[] {
+  return operations.map((op, index) => {
     const alias = op.alias || `m${index + 1}`;
     const graphql = op.graphql.replace(
       /\$(\w+)/g,
@@ -42,14 +35,25 @@ export function buildBatchOperation(operations: Operation[]): {
     clientMutationId
   }`;
   });
+}
 
-  // Build variables object
-  const variables = operations.reduce((vars, op, index) => {
+function buildVariablesObject(operations: Operation[]): Record<string, unknown> {
+  return operations.reduce((vars, op, index) => {
     Object.entries(op.variables).forEach(([key, variable]) => {
       vars[`${key}${index + 1}`] = variable.value;
     });
     return vars;
   }, {} as Record<string, unknown>);
+}
+
+export function buildBatchOperation(operations: Operation[]) {
+  if (operations.length === 0) {
+    return { gql: '', variables: {} };
+  }
+
+  const varDefs = buildVariableDefinitions(operations);
+  const mutations = buildMutationStatements(operations);
+  const variables = buildVariablesObject(operations);
 
   return {
     gql: `mutation BatchOperation(${varDefs}) {${mutations.join('\n')}\n}`,
