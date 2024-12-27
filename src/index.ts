@@ -15,8 +15,12 @@ type Operation = {
 export function buildVariableDefinitions(operations: Operation[]): string {
   return operations
     .map((op, index) =>
-      Object.entries(op.variables)
-        .map(([key, variable]) => `$${key}${index + 1}: ${variable.type}`)
+      Object.entries(op.variables).map(([key, variable]) => {
+        if (!variable.type) {
+          throw new Error(`Missing type for variable "${key}" in operation ${index}`);
+        }
+        return `$${key}${index + 1}: ${variable.type}`;
+      })
     )
     .flat()
     .join(', ');
@@ -46,7 +50,20 @@ export function buildVariablesObject(operations: Operation[]): Record<string, un
   }, {} as Record<string, unknown>);
 }
 
-export function buildBatchOperation(operations: Operation[]) {
+export function buildBatchOperation(operations: Operation[]): {
+  gql: string;
+  variables: Record<string, unknown>;
+} {
+  // Validate operation structure
+  operations.forEach((op, index) => {
+    if (!op.graphql) {
+      throw new Error(`Operation at index ${index} is missing graphql query`);
+    }
+    if (!op.variables || typeof op.variables !== 'object') {
+      throw new Error(`Operation at index ${index} has invalid variables`);
+    }
+  });
+
   if (operations.length === 0) {
     return { gql: '', variables: {} };
   }
