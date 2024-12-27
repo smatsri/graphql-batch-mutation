@@ -1,4 +1,5 @@
 import type { Operation, BatchOperationResult } from './types';
+export * from './types';
 import { buildVariableDefinitions, buildMutationStatements, buildVariablesObject, validateOperations } from './helpers';
 
 
