@@ -1,81 +1,39 @@
-type BaseVariableType = 'String' | 'Int' | 'Boolean' | 'Float' | 'ID';
-type OperationVariableType = BaseVariableType | `${BaseVariableType}!` | (string & {});
+import type { Operation, BatchOperationResult } from './types';
+import { buildVariableDefinitions, buildMutationStatements, buildVariablesObject, validateOperations } from './helpers';
 
-type OperationVariable = {
-  type: OperationVariableType;
-  value: unknown;
-};
 
-type Operation = {
-  graphql: string;
-  variables: Record<string, OperationVariable>;
-  alias?: string;
-};
+/**
+ * Builds a batched GraphQL mutation operation from multiple individual operations
+ * @param {Operation[]} operations - Array of operations to combine
+ * @returns {BatchOperationResult} Object containing the combined query and variables
+ * @throws {Error} If any operation is missing required fields or is malformed
+ * 
+ * @example
+ * const result = buildBatchOperation([
+ *   {
+ *     graphql: 'subscriberUnsubscribeEmail(input: { uid: $uid })',
+ *     variables: {
+ *       uid: {
+ *         type: 'String!',
+ *         value: 'zykECZHChXcT8Jxi0xtmtFywa8I2'
+ *       }
+ *     }
+ *   }
+ * ]);
+ */
+export function buildBatchOperation(operations: Operation[]): BatchOperationResult {
+  validateOperations(operations);
 
-export function buildBatchOperation(operations: Operation[]): {
-  gql: string;
-  variables: Record<string, unknown>;
-} {
   if (operations.length === 0) {
     return { gql: '', variables: {} };
   }
 
-  // Build variable definitions
-  const varDefs = operations
-    .map((op, index) =>
-      Object.entries(op.variables)
-        .map(([key, variable]) => `$${key}${index + 1}: ${variable.type}`)
-    )
-    .flat()
-    .join(', ');
-
-  // Build mutations
-  const mutations = operations.map((op, index) => {
-    const alias = op.alias || `m${index + 1}`;
-    const graphql = op.graphql.replace(
-      /\$(\w+)/g,
-      (_, varName) => `$${varName}${index + 1}`
-    );
-
-    return `
-  ${alias}: ${graphql} {
-    clientMutationId
-  }`;
-  });
-
-  // Build variables object
-  const variables = operations.reduce((vars, op, index) => {
-    Object.entries(op.variables).forEach(([key, variable]) => {
-      vars[`${key}${index + 1}`] = variable.value;
-    });
-    return vars;
-  }, {} as Record<string, unknown>);
+  const varDefs = buildVariableDefinitions(operations);
+  const mutations = buildMutationStatements(operations);
+  const variables = buildVariablesObject(operations);
 
   return {
     gql: `mutation BatchOperation(${varDefs}) {${mutations.join('\n')}\n}`,
     variables
   };
 }
-
-/* Usage example:
-const result = buildBatchOperation([
-  {
-    graphql: 'subscriberUnsubscribeEmail(input: { uid: $uid })',
-    variables: {
-      uid: {
-        type: 'String!',
-        value: 'zykECZHChXcT8Jxi0xtmtFywa8I2'
-      }
-    }
-  },
-  {
-    graphql: 'subscriberUnsubscribePhone(input: { uid: $uid })',
-    variables: {
-      uid: {
-        type: 'String!',
-        value: 'zykECZHChXcT8Jxi0xtmtFywa8I2'
-      }
-    }
-  }
-]);
-*/
