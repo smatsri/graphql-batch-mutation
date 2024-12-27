@@ -1,4 +1,4 @@
-import { buildBatchOperation } from './index';
+import { buildBatchOperation } from '../index';
 
 describe('buildBatchOperation', () => {
   it('should build an empty mutation when no operations are provided', () => {

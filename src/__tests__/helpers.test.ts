@@ -1,4 +1,4 @@
-import { buildMutationStatements, buildVariableDefinitions, buildVariablesObject } from './helpers';
+import { buildMutationStatements, buildVariableDefinitions, buildVariablesObject } from '../helpers';
 
 describe('buildVariableDefinitions', () => {
   it('should build variable definitions with correct indexing', () => {
