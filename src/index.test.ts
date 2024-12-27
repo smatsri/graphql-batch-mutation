@@ -1,9 +1,8 @@
-import { BatchBuilder } from './index';
+import { buildBatchOperation } from './index';
 
-describe('BatchBuilder', () => {
-  it('should build an empty mutation when no operations are added', () => {
-    const builder = new BatchBuilder();
-    const result = builder.build();
+describe('buildBatchOperation', () => {
+  it('should build an empty mutation when no operations are provided', () => {
+    const result = buildBatchOperation([]);
 
     expect(result).toEqual({
       gql: '',
@@ -12,8 +11,7 @@ describe('BatchBuilder', () => {
   });
 
   it('should build a single mutation correctly', () => {
-    const builder = new BatchBuilder();
-    const result = builder.addOperation({
+    const result = buildBatchOperation([{
       graphql: 'subscriberUnsubscribeEmail(input: { uid: $uid })',
       variables: {
         uid: {
@@ -21,7 +19,7 @@ describe('BatchBuilder', () => {
           value: 'user123'
         }
       }
-    }).build();
+    }]);
 
     const expected = `mutation BatchOperation($uid1: String!) {
   m1: subscriberUnsubscribeEmail(input: { uid: $uid1 }) {
@@ -36,8 +34,7 @@ describe('BatchBuilder', () => {
   });
 
   it('should handle custom aliases', () => {
-    const builder = new BatchBuilder();
-    const result = builder.addOperation({
+    const result = buildBatchOperation([{
       alias: 'customAlias',
       graphql: 'testMutation(input: { uid: $uid })',
       variables: {
@@ -46,15 +43,14 @@ describe('BatchBuilder', () => {
           value: 'user123'
         }
       }
-    }).build();
+    }]);
 
     expect(result.gql).toContain('customAlias: testMutation');
   });
 
   it('should build multiple mutations with correct variable indexing', () => {
-    const builder = new BatchBuilder();
-    const result = builder
-      .addOperation({
+    const result = buildBatchOperation([
+      {
         graphql: 'subscriberUnsubscribeEmail(input: { uid: $uid })',
         variables: {
           uid: {
@@ -62,8 +58,8 @@ describe('BatchBuilder', () => {
             value: 'zykECZHChXcT8Jxi0xtmtFywa8I2'
           }
         }
-      })
-      .addOperation({
+      },
+      {
         graphql: 'subscriberUnsubscribePhone(input: { uid: $uid })',
         variables: {
           uid: {
@@ -71,8 +67,8 @@ describe('BatchBuilder', () => {
             value: 'zykECZHChXcT8Jxi0xtmtFywa8I2'
           }
         }
-      })
-      .build();
+      }
+    ]);
 
     const expected = `mutation BatchOperation($uid1: String!, $uid2: String!) {
   m1: subscriberUnsubscribeEmail(input: { uid: $uid1 }) {
@@ -83,10 +79,8 @@ describe('BatchBuilder', () => {
     clientMutationId
   }
 }`;
-    console.log(result.gql);
 
     expect(result.gql).toBe(expected);
-
     expect(result.variables).toEqual({
       uid1: 'zykECZHChXcT8Jxi0xtmtFywa8I2',
       uid2: 'zykECZHChXcT8Jxi0xtmtFywa8I2'
@@ -94,8 +88,7 @@ describe('BatchBuilder', () => {
   });
 
   it('should handle multiple variables per operation', () => {
-    const builder = new BatchBuilder();
-    const result = builder.addOperation({
+    const result = buildBatchOperation([{
       graphql: 'updateUser(input: { id: $id, name: $name })',
       variables: {
         id: {
@@ -107,7 +100,7 @@ describe('BatchBuilder', () => {
           value: 'John Doe'
         }
       }
-    }).build();
+    }]);
 
     const expected = `mutation BatchOperation($id1: ID!, $name1: String!) {
   m1: updateUser(input: { id: $id1, name: $name1 }) {
