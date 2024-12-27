@@ -6,67 +6,60 @@ type OperationVariable = {
   value: unknown;
 };
 
-type BuilderOperation = {
+type Operation = {
   graphql: string;
   variables: Record<string, OperationVariable>;
   alias?: string;
 };
 
-export class BatchBuilder {
-  private operations: BuilderOperation[] = [];
-
-  addOperation(operation: BuilderOperation): BatchBuilder {
-    this.operations.push(operation);
-    return this;
+export function buildBatchOperation(operations: Operation[]): {
+  gql: string;
+  variables: Record<string, unknown>;
+} {
+  if (operations.length === 0) {
+    return { gql: '', variables: {} };
   }
 
-  build(): { gql: string; variables: Record<string, unknown> } {
-    if (this.operations.length === 0) {
-      return { gql: '', variables: {} };
-    }
+  // Build variable definitions
+  const varDefs = operations
+    .map((op, index) =>
+      Object.entries(op.variables)
+        .map(([key, variable]) => `$${key}${index + 1}: ${variable.type}`)
+    )
+    .flat()
+    .join(', ');
 
-    // Build variable definitions
-    const varDefs = this.operations
-      .map((op, index) =>
-        Object.entries(op.variables)
-          .map(([key, variable]) => `$${key}${index + 1}: ${variable.type}`)
-      )
-      .flat()
-      .join(', ');
+  // Build mutations
+  const mutations = operations.map((op, index) => {
+    const alias = op.alias || `m${index + 1}`;
+    const graphql = op.graphql.replace(
+      /\$(\w+)/g,
+      (_, varName) => `$${varName}${index + 1}`
+    );
 
-    // Build mutations
-    const mutations = this.operations.map((op, index) => {
-      const alias = op.alias || `m${index + 1}`;
-      const graphql = op.graphql.replace(
-        /\$(\w+)/g,
-        (_, varName) => `$${varName}${index + 1}`
-      );
-
-      return `
+    return `
   ${alias}: ${graphql} {
     clientMutationId
   }`;
+  });
+
+  // Build variables object
+  const variables = operations.reduce((vars, op, index) => {
+    Object.entries(op.variables).forEach(([key, variable]) => {
+      vars[`${key}${index + 1}`] = variable.value;
     });
+    return vars;
+  }, {} as Record<string, unknown>);
 
-    // Build variables object
-    const variables = this.operations.reduce((vars, op, index) => {
-      Object.entries(op.variables).forEach(([key, variable]) => {
-        vars[`${key}${index + 1}`] = variable.value;
-      });
-      return vars;
-    }, {} as Record<string, unknown>);
-
-    return {
-      gql: `mutation BatchOperation(${varDefs}) {${mutations.join('\n')}\n}`,
-      variables
-    };
-  }
+  return {
+    gql: `mutation BatchOperation(${varDefs}) {${mutations.join('\n')}\n}`,
+    variables
+  };
 }
 
 /* Usage example:
-const builder = new BatchBuilder();
-const result = builder
-  .addOperation({
+const result = buildBatchOperation([
+  {
     graphql: 'subscriberUnsubscribeEmail(input: { uid: $uid })',
     variables: {
       uid: {
@@ -74,8 +67,8 @@ const result = builder
         value: 'zykECZHChXcT8Jxi0xtmtFywa8I2'
       }
     }
-  })
-  .addOperation({
+  },
+  {
     graphql: 'subscriberUnsubscribePhone(input: { uid: $uid })',
     variables: {
       uid: {
@@ -83,6 +76,6 @@ const result = builder
         value: 'zykECZHChXcT8Jxi0xtmtFywa8I2'
       }
     }
-  })
-  .build();
+  }
+]);
 */
