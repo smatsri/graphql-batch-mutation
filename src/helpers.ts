@@ -3,8 +3,8 @@ import type { Operation } from './types';
 export function buildVariableDefinitions(operations: Operation[]): string {
   return operations
     .map((op, index) =>
-      Object.entries(op.variables).map(([key, variable]) =>
-        `$${key}${index + 1}: ${variable.type}`
+      Object.entries(op.variables).map(
+        ([key, variable]) => `$${key}${index + 1}: ${variable.type}`,
       ),
     )
     .flat()

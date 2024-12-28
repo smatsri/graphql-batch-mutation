@@ -39,7 +39,7 @@ export const OperationVariable = (
  * @param {Record<string, OperationVariable>} variables - Map of variable names to their definitions
  * @param {string} [alias] - Optional alias for the operation
  * @returns {Operation} A complete operation object
- * 
+ *
  * @example
  * const operation = Operation(
  *   'updateUser(input: { id: $id, name: $name })',
@@ -58,4 +58,3 @@ export const Operation = (
   variables,
   alias,
 });
-
