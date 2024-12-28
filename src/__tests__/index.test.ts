@@ -1,9 +1,9 @@
-import { buildBatchOperation } from '../index';
+import { buildBatchMutation } from '../index';
 import { Operation, OperationVariable } from '../types';
 
 describe('buildBatchOperation', () => {
   it('should build an empty mutation when no operations are provided', () => {
-    const result = buildBatchOperation([]);
+    const result = buildBatchMutation([]);
 
     expect(result).toEqual({
       graphql: '',
@@ -12,7 +12,7 @@ describe('buildBatchOperation', () => {
   });
 
   it('should build a single mutation correctly', () => {
-    const result = buildBatchOperation([
+    const result = buildBatchMutation([
       Operation(
         'subscriberUnsubscribeEmail(input: { uid: $uid })',
         {
@@ -34,7 +34,7 @@ describe('buildBatchOperation', () => {
   });
 
   it('should handle custom aliases', () => {
-    const result = buildBatchOperation([
+    const result = buildBatchMutation([
       Operation(
         'testMutation(input: { uid: $uid })',
         {
@@ -48,7 +48,7 @@ describe('buildBatchOperation', () => {
   });
 
   it('should build multiple mutations with correct variable indexing', () => {
-    const result = buildBatchOperation([
+    const result = buildBatchMutation([
       Operation(
         'subscriberUnsubscribeEmail(input: { uid: $uid })',
         {
@@ -81,7 +81,7 @@ describe('buildBatchOperation', () => {
   });
 
   it('should handle multiple variables per operation', () => {
-    const result = buildBatchOperation([
+    const result = buildBatchMutation([
       Operation(
         'updateUser(input: { id: $id, name: $name })',
         {

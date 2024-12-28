@@ -1,4 +1,4 @@
-import type { Operation, BatchOperationResult } from './types';
+import type { Operation, BatchOperationResult as BatchMutationResult } from './types';
 export * from './types';
 import {
   buildVariableDefinitions,
@@ -10,11 +10,11 @@ import {
 /**
  * Builds a batched GraphQL mutation operation from multiple individual operations
  * @param {Operation[]} operations - Array of operations to combine
- * @returns {BatchOperationResult} Object containing the combined query and variables
+ * @returns {BatchMutationResult} Object containing the combined query and variables
  * @throws {Error} If any operation is missing required fields or is malformed
  *
  * @example
- * const { graphql, variables } = buildBatchOperation([
+ * const { graphql, variables } = buildBatchMutation([
  *   Operation(
  *     'testMutation(input: { id: $id })',
  *     { id: OperationVariable('ID!', '123') },
@@ -25,7 +25,7 @@ import {
  *   ),
  * ]);
  */
-export function buildBatchOperation(operations: Operation[]): BatchOperationResult {
+export function buildBatchMutation(operations: Operation[]): BatchMutationResult {
   validateOperations(operations);
 
   if (operations.length === 0) {
