@@ -30,7 +30,7 @@ export function buildBatchOperation(operations: Operation[]): BatchOperationResu
   validateOperations(operations);
 
   if (operations.length === 0) {
-    return { gql: '', variables: {} };
+    return { graphql: '', variables: {} };
   }
 
   const varDefs = buildVariableDefinitions(operations);
@@ -38,7 +38,7 @@ export function buildBatchOperation(operations: Operation[]): BatchOperationResu
   const variables = buildVariablesObject(operations);
 
   return {
-    gql: `mutation BatchOperation(${varDefs}) {${mutations.join('\n')}\n}`,
+    graphql: `mutation BatchOperation(${varDefs}) {${mutations.join('\n')}\n}`,
     variables,
   };
 }

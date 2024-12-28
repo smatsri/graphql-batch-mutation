@@ -19,7 +19,7 @@ export type BatchOperationResult = {
 };
 
 export const OperationVariable = (
-  type: BaseVariableType,
+  type: OperationVariableType,
   value: unknown,
   alias?: string,
 ) => ({

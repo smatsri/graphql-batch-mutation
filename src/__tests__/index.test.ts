@@ -1,26 +1,24 @@
 import { buildBatchOperation } from '../index';
+import { Operation, OperationVariable } from '../types';
 
 describe('buildBatchOperation', () => {
   it('should build an empty mutation when no operations are provided', () => {
     const result = buildBatchOperation([]);
 
     expect(result).toEqual({
-      gql: '',
+      graphql: '',
       variables: {},
     });
   });
 
   it('should build a single mutation correctly', () => {
     const result = buildBatchOperation([
-      {
-        graphql: 'subscriberUnsubscribeEmail(input: { uid: $uid })',
-        variables: {
-          uid: {
-            type: 'String!',
-            value: 'user123',
-          },
+      Operation(
+        'subscriberUnsubscribeEmail(input: { uid: $uid })',
+        {
+          uid: OperationVariable('String!', 'user123'),
         },
-      },
+      ),
     ]);
 
     const expected = `mutation BatchOperation($uid1: String!) {
@@ -29,7 +27,7 @@ describe('buildBatchOperation', () => {
   }
 }`;
 
-    expect(result.gql).toBe(expected);
+    expect(result.graphql).toBe(expected);
     expect(result.variables).toEqual({
       uid1: 'user123',
     });
@@ -37,41 +35,32 @@ describe('buildBatchOperation', () => {
 
   it('should handle custom aliases', () => {
     const result = buildBatchOperation([
-      {
-        alias: 'customAlias',
-        graphql: 'testMutation(input: { uid: $uid })',
-        variables: {
-          uid: {
-            type: 'String!',
-            value: 'user123',
-          },
+      Operation(
+        'testMutation(input: { uid: $uid })',
+        {
+          uid: OperationVariable('String!', 'user123'),
         },
-      },
+        'customAlias'
+      ),
     ]);
 
-    expect(result.gql).toContain('customAlias: testMutation');
+    expect(result.graphql).toContain('customAlias: testMutation');
   });
 
   it('should build multiple mutations with correct variable indexing', () => {
     const result = buildBatchOperation([
-      {
-        graphql: 'subscriberUnsubscribeEmail(input: { uid: $uid })',
-        variables: {
-          uid: {
-            type: 'String!',
-            value: 'zykECZHChXcT8Jxi0xtmtFywa8I2',
-          },
+      Operation(
+        'subscriberUnsubscribeEmail(input: { uid: $uid })',
+        {
+          uid: OperationVariable('String!', 'zykECZHChXcT8Jxi0xtmtFywa8I2'),
         },
-      },
-      {
-        graphql: 'subscriberUnsubscribePhone(input: { uid: $uid })',
-        variables: {
-          uid: {
-            type: 'String!',
-            value: 'zykECZHChXcT8Jxi0xtmtFywa8I2',
-          },
+      ),
+      Operation(
+        'subscriberUnsubscribePhone(input: { uid: $uid })',
+        {
+          uid: OperationVariable('String!', 'zykECZHChXcT8Jxi0xtmtFywa8I2'),
         },
-      },
+      ),
     ]);
 
     const expected = `mutation BatchOperation($uid1: String!, $uid2: String!) {
@@ -84,7 +73,7 @@ describe('buildBatchOperation', () => {
   }
 }`;
 
-    expect(result.gql).toBe(expected);
+    expect(result.graphql).toBe(expected);
     expect(result.variables).toEqual({
       uid1: 'zykECZHChXcT8Jxi0xtmtFywa8I2',
       uid2: 'zykECZHChXcT8Jxi0xtmtFywa8I2',
@@ -93,19 +82,13 @@ describe('buildBatchOperation', () => {
 
   it('should handle multiple variables per operation', () => {
     const result = buildBatchOperation([
-      {
-        graphql: 'updateUser(input: { id: $id, name: $name })',
-        variables: {
-          id: {
-            type: 'ID!',
-            value: '123',
-          },
-          name: {
-            type: 'String!',
-            value: 'John Doe',
-          },
+      Operation(
+        'updateUser(input: { id: $id, name: $name })',
+        {
+          id: OperationVariable('ID!', '123'),
+          name: OperationVariable('String!', 'John Doe'),
         },
-      },
+      ),
     ]);
 
     const expected = `mutation BatchOperation($id1: ID!, $name1: String!) {
@@ -114,7 +97,7 @@ describe('buildBatchOperation', () => {
   }
 }`;
 
-    expect(result.gql).toBe(expected);
+    expect(result.graphql).toBe(expected);
     expect(result.variables).toEqual({
       id1: '123',
       name1: 'John Doe',
