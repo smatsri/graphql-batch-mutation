@@ -14,23 +14,22 @@ import {
  * @throws {Error} If any operation is missing required fields or is malformed
  *
  * @example
- * const result = buildBatchOperation([
- *   {
- *     graphql: 'subscriberUnsubscribeEmail(input: { uid: $uid })',
- *     variables: {
- *       uid: {
- *         type: 'String!',
- *         value: 'zykECZHChXcT8Jxi0xtmtFywa8I2'
- *       }
- *     }
- *   }
+ * const { graphql, variables } = buildBatchOperation([
+ *   Operation(
+ *     'testMutation(input: { id: $id })',
+ *     { id: OperationVariable('ID!', '123') },
+ *   ),
+ *   Operation(
+ *     'testMutation(input: { id: $id })',
+ *     { id: OperationVariable('ID!', '456') },
+ *   ),
  * ]);
  */
 export function buildBatchOperation(operations: Operation[]): BatchOperationResult {
   validateOperations(operations);
 
   if (operations.length === 0) {
-    return { gql: '', variables: {} };
+    return { graphql: '', variables: {} };
   }
 
   const varDefs = buildVariableDefinitions(operations);
@@ -38,7 +37,7 @@ export function buildBatchOperation(operations: Operation[]): BatchOperationResu
   const variables = buildVariablesObject(operations);
 
   return {
-    gql: `mutation BatchOperation(${varDefs}) {${mutations.join('\n')}\n}`,
+    graphql: `mutation BatchOperation(${varDefs}) {${mutations.join('\n')}\n}`,
     variables,
   };
 }
