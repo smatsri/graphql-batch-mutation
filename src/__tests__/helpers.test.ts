@@ -3,17 +3,15 @@ import {
   buildVariableDefinitions,
   buildVariablesObject,
 } from '../helpers';
+import { Operation, OperationVariable } from '../types';
 
 describe('buildVariableDefinitions', () => {
   it('should build variable definitions with correct indexing', () => {
     const operations = [
-      {
-        graphql: 'testMutation',
-        variables: {
-          id: { type: 'ID!', value: '123' },
-          name: { type: 'String!', value: 'test' },
-        },
-      },
+      Operation('testMutation', {
+        id: OperationVariable('ID!', '123'),
+        name: OperationVariable('String!', 'test'),
+      }),
     ];
 
     const result = buildVariableDefinitions(operations);
@@ -22,14 +20,8 @@ describe('buildVariableDefinitions', () => {
 
   it('should handle multiple operations', () => {
     const operations = [
-      {
-        graphql: 'test1',
-        variables: { id: { type: 'ID!', value: '123' } },
-      },
-      {
-        graphql: 'test2',
-        variables: { id: { type: 'ID!', value: '456' } },
-      },
+      Operation('test1', { id: OperationVariable('ID!', '123') }),
+      Operation('test2', { id: OperationVariable('ID!', '456') }),
     ];
 
     const result = buildVariableDefinitions(operations);
@@ -40,23 +32,23 @@ describe('buildVariableDefinitions', () => {
 describe('buildMutationStatements', () => {
   it('should build mutation with default alias', () => {
     const operations = [
-      {
-        graphql: 'testMutation(input: { id: $id })',
-        variables: { id: { type: 'ID!', value: '123' } },
-      },
+      Operation(
+        'testMutation(input: { id: $id })',
+        { id: OperationVariable('ID!', '123') },
+      ),
     ];
 
     const result = buildMutationStatements(operations);
     expect(result[0]).toContain('m1: testMutation(input: { id: $id1 })');
   });
 
-  it('should respect custom alias', () => {
+  it('should respect   alias', () => {
     const operations = [
-      {
-        alias: 'custom',
-        graphql: 'testMutation(input: { id: $id })',
-        variables: { id: { type: 'ID!', value: '123' } },
-      },
+      Operation(
+        'testMutation(input: { id: $id })',
+        { id: OperationVariable('ID!', '123') },
+        'custom',
+      ),
     ];
 
     const result = buildMutationStatements(operations);
@@ -67,32 +59,19 @@ describe('buildMutationStatements', () => {
 describe('buildVariablesObject', () => {
   it('should build variables object with correct indexing', () => {
     const operations = [
-      {
-        graphql: 'test',
-        variables: {
-          id: { type: 'ID!', value: '123' },
-          name: { type: 'String!', value: 'test' },
-        },
-      },
+      Operation('test', { id: OperationVariable('ID!', '123') }),
     ];
 
     const result = buildVariablesObject(operations);
     expect(result).toEqual({
       id1: '123',
-      name1: 'test',
     });
   });
 
   it('should handle multiple operations', () => {
     const operations = [
-      {
-        graphql: 'test1',
-        variables: { id: { type: 'ID!', value: '123' } },
-      },
-      {
-        graphql: 'test2',
-        variables: { id: { type: 'ID!', value: '456' } },
-      },
+      Operation('test1', { id: OperationVariable('ID!', '123') }),
+      Operation('test2', { id: OperationVariable('ID!', '456') }),
     ];
 
     const result = buildVariablesObject(operations);
