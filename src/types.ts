@@ -1,19 +1,24 @@
+/** Base GraphQL scalar types */
 export type BaseVariableType = 'String' | 'Int' | 'Boolean' | 'Float' | 'ID';
 
+/** GraphQL variable type that can be nullable or non-nullable */
 export type OperationVariableType = BaseVariableType | `${BaseVariableType}!` | (string & {});
 
+/** Represents a GraphQL operation variable with its type and value */
 export type OperationVariable = {
-  type: OperationVariableType;
-  value: unknown;
+  readonly type: OperationVariableType;
+  readonly value: unknown;
 };
 
+/** Represents a complete GraphQL operation */
 export type Operation = {
-  graphql: string;
-  variables: Record<string, OperationVariable>;
-  alias?: string;
+  readonly graphql: string;
+  readonly variables: Readonly<Record<string, OperationVariable>>;
+  readonly alias?: string;
 };
 
+/** Result of a batched GraphQL operation */
 export type BatchOperationResult = {
-  gql: string;
-  variables: Record<string, unknown>;
+  readonly graphql: string; // Changed from 'gql' for consistency
+  readonly variables: Readonly<Record<string, unknown>>;
 };
