@@ -16,4 +16,4 @@ export type Operation = {
 export type BatchOperationResult = {
   gql: string;
   variables: Record<string, unknown>;
-}; 
+};
