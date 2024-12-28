@@ -19,24 +19,18 @@ export type BatchOperationResult = {
 };
 
 /**
- * Creates an operation variable for use in GraphQL operations
- * @param {OperationVariableType} type - The GraphQL type (e.g., 'String!', 'Int', 'Boolean')
- * @param {unknown} value - The value of the variable
- * @param {string} [alias] - Optional alias for the variable
- * @returns {OperationVariable} A typed operation variable
- * 
+ * Creates a typed GraphQL operation variable
  * @example
- * const stringVar = OperationVariable('String!', 'hello');
+ * const idVar = OperationVariable('ID!', '123');
+ * const stringVar = OperationVariable('String', 'hello');
  * const intVar = OperationVariable('Int!', 42);
  */
 export const OperationVariable = (
   type: OperationVariableType,
   value: unknown,
-  alias?: string,
-) => ({
+): OperationVariable => ({
   type,
   value,
-  alias,
 });
 
 /**
@@ -59,7 +53,7 @@ export const Operation = (
   graphql: string,
   variables: Record<string, OperationVariable>,
   alias?: string,
-) => ({
+): Operation => ({
   graphql,
   variables,
   alias,
