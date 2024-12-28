@@ -1,14 +1,18 @@
 import type { Operation, BatchOperationResult } from './types';
 export * from './types';
-import { buildVariableDefinitions, buildMutationStatements, buildVariablesObject, validateOperations } from './helpers';
-
+import {
+  buildVariableDefinitions,
+  buildMutationStatements,
+  buildVariablesObject,
+  validateOperations,
+} from './helpers';
 
 /**
  * Builds a batched GraphQL mutation operation from multiple individual operations
  * @param {Operation[]} operations - Array of operations to combine
  * @returns {BatchOperationResult} Object containing the combined query and variables
  * @throws {Error} If any operation is missing required fields or is malformed
- * 
+ *
  * @example
  * const result = buildBatchOperation([
  *   {
@@ -35,6 +39,6 @@ export function buildBatchOperation(operations: Operation[]): BatchOperationResu
 
   return {
     gql: `mutation BatchOperation(${varDefs}) {${mutations.join('\n')}\n}`,
-    variables
+    variables,
   };
 }
