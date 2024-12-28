@@ -1,6 +1,19 @@
 export type BaseVariableType = 'String' | 'Int' | 'Boolean' | 'Float' | 'ID';
 
-export type OperationVariableType = BaseVariableType | `${BaseVariableType}!` | (string & {});
+export type GraphQLScalarType =
+  | BaseVariableType
+  | 'DateTime'
+  | 'JSON'
+  | 'Upload';
+
+export type OperationVariableType =
+  | GraphQLScalarType
+  | `${GraphQLScalarType}!`
+  | `[${GraphQLScalarType}]`
+  | `[${GraphQLScalarType}!]`
+  | `[${GraphQLScalarType}]!`
+  | `[${GraphQLScalarType}!]!`
+  | (string & {});
 
 export type OperationVariable = {
   readonly type: OperationVariableType;
