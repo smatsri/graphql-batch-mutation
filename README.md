@@ -13,7 +13,7 @@ npm install graphql-batch-mutation
 ```typescript
 import { buildBatchMutation } from 'graphql-batch-mutation';
 
-const { gql, variables } = buildBatchMutation([
+const { graphql, variables } = buildBatchMutation([
   Operation('createUser(input: { name: $name })', {
     name: OperationVariable('String!', 'John Doe'),
   }),
