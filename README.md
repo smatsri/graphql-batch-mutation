@@ -11,17 +11,15 @@ npm install graphql-batch-mutation
 ## Usage
 
 ```typescript
-import { buildBatchMutation } from "graphql-batch-mutation";
+import { buildBatchMutation } from 'graphql-batch-mutation';
 
 const { gql, variables } = buildBatchOperation([
-  {
-    graphql: "createUser(input: { name: $name })",
-    variables: {
-      name: {
-        type: "String!",
-        value: "John Doe",
-      },
-    },
-  },
+  Operation('createUser(input: { name: $name })', {
+    name: OperationVariable('String!', 'John Doe'),
+  }),
+  Operation('updateUser(input: { id: $id, name: $name })', {
+    id: OperationVariable('ID!', '123'),
+    name: OperationVariable('String!', 'John Doe'),
+  }),
 ]);
 ```
