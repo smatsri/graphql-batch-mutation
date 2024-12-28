@@ -1,6 +1,6 @@
 {
   "name": "graphql-batch-mutation",
-  "version": "1.0.2",
+  "version": "1.0.3",
   "description": "Build a batch mutation for GraphQL",
   "main": "dist/index.js",
   "module": "dist/index.js",
