@@ -17,9 +17,7 @@ export function buildMutationStatements(operations: Operation[]): string[] {
     const graphql = op.graphql.replace(/\$(\w+)/g, (_, varName) => `$${varName}${index + 1}`);
 
     return `
-  ${alias}: ${graphql} {
-    clientMutationId
-  }`;
+  ${alias}: ${graphql}`;
   });
 }
 
