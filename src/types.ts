@@ -1,6 +1,19 @@
 export type BaseVariableType = 'String' | 'Int' | 'Boolean' | 'Float' | 'ID';
 
-export type OperationVariableType = BaseVariableType | `${BaseVariableType}!` | (string & {});
+export type GraphQLScalarType =
+  | BaseVariableType
+  | 'DateTime'
+  | 'JSON'
+  | 'Upload';
+
+export type OperationVariableType =
+  | GraphQLScalarType
+  | `${GraphQLScalarType}!`
+  | `[${GraphQLScalarType}]`
+  | `[${GraphQLScalarType}!]`
+  | `[${GraphQLScalarType}]!`
+  | `[${GraphQLScalarType}!]!`
+  | (string & {});
 
 export type OperationVariable = {
   readonly type: OperationVariableType;
@@ -39,7 +52,7 @@ export const OperationVariable = (
  * @param {Record<string, OperationVariable>} variables - Map of variable names to their definitions
  * @param {string} [alias] - Optional alias for the operation
  * @returns {Operation} A complete operation object
- * 
+ *
  * @example
  * const operation = Operation(
  *   'updateUser(input: { id: $id, name: $name })',
@@ -58,4 +71,3 @@ export const Operation = (
   variables,
   alias,
 });
-

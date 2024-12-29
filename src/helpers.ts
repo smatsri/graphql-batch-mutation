@@ -1,14 +1,11 @@
-import type { Operation, BatchOperationResult } from './types';
+import type { Operation } from './types';
 
 export function buildVariableDefinitions(operations: Operation[]): string {
   return operations
     .map((op, index) =>
-      Object.entries(op.variables).map(([key, variable]) => {
-        if (!variable.type) {
-          throw new Error(`Missing type for variable "${key}" in operation ${index}`);
-        }
-        return `$${key}${index + 1}: ${variable.type}`;
-      }),
+      Object.entries(op.variables).map(
+        ([key, variable]) => `$${key}${index + 1}: ${variable.type}`,
+      ),
     )
     .flat()
     .join(', ');
@@ -20,9 +17,7 @@ export function buildMutationStatements(operations: Operation[]): string[] {
     const graphql = op.graphql.replace(/\$(\w+)/g, (_, varName) => `$${varName}${index + 1}`);
 
     return `
-  ${alias}: ${graphql} {
-    clientMutationId
-  }`;
+  ${alias}: ${graphql}`;
   });
 }
 
@@ -43,5 +38,11 @@ export function validateOperations(operations: Operation[]): void {
     if (!op.graphql) {
       throw new Error(`Operation at index ${index} is missing graphql query`);
     }
+
+    Object.entries(op.variables).forEach(([key, variable]) => {
+      if (!variable.type) {
+        throw new Error(`Missing type for variable "${key}" in operation ${index}`);
+      }
+    });
   });
 }
